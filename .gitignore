@@ -9,6 +9,9 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+Database/CaloriasJson.json
+Database/Caloriasporalimento.js
+
 
 # macOS
 .DS_Store
