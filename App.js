@@ -1,27 +1,25 @@
-import React from 'react';
-import 'react-native-gesture-handler'
+import React from "react";
+import "react-native-gesture-handler";
 import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Veringreso from "./screens/Veringreso";
 import NuevoIngreso from "./screens/NuevoIngreso";
 import IngresoDetalle from "./screens/IngresoDetalle";
-// import CambioColeccion from "./screens/CambioColeccion";
 import Totales from "./screens/Totales";
-import {FechaProvider} from "./Context/FechaContext";
+import { FechaProvider } from "./Context/FechaContext";
 import AnadirCategoria from "./screens/AnadirCategoria";
 import ModificarCategoria from "./screens/ModificarCategoria";
-
 
 const Stack = createStackNavigator();
 function MyStack() {
   return (
     <Stack.Navigator>
-<Stack.Screen
-  name="Totales"
-  component={Totales}
-  options={{ title: "Totales" }}
-/> 
+      <Stack.Screen
+        name="Totales"
+        component={Totales}
+        options={{ title: "Totales" }}
+      />
       <Stack.Screen
         name="NuevoIngreso"
         component={NuevoIngreso}
@@ -37,39 +35,25 @@ function MyStack() {
         component={IngresoDetalle}
         options={{ title: "Detalle del Ingreso" }}
       />
-       {/* <Stack.Screen
-        name="CambioColeccion"
-        component={CambioColeccion}
-         options={{ title: "Cambio de fecha" }}
-       /> */}
-       <Stack.Screen
-         name="AnadirCategoria"
-         component={AnadirCategoria}
-         options={{ title: "Añadir categoría" }}
-       /> 
-       <Stack.Screen
-         name="ModificarCategoria"
-         component={ModificarCategoria}
-         options={{ title: "Modificar categoría" }}
-       /> 
+      <Stack.Screen
+        name="AnadirCategoria"
+        component={AnadirCategoria}
+        options={{ title: "Añadir categoría" }}
+      />
+      <Stack.Screen
+        name="ModificarCategoria"
+        component={ModificarCategoria}
+        options={{ title: "Modificar categoría" }}
+      />
     </Stack.Navigator>
   );
 }
 export default function App() {
   return (
     <FechaProvider>
-    <NavigationContainer>
-      <MyStack />
-    </NavigationContainer>
-     </FechaProvider>
+      <NavigationContainer>
+        <MyStack />
+      </NavigationContainer>
+    </FechaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

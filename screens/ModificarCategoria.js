@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,19 +6,24 @@ import {
   SafeAreaView,
   StyleSheet,
   Alert,
-  ActivityIndicator,
   ScrollView,
+  Dimensions,
 } from "react-native";
-import { ListItem, Avatar } from "@rneui/themed";
-import { Button } from "@rneui/themed";
-import { db, dbcat } from "../Database/firebase.js";
-// import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
-// import SelectDropdown from "react-native-select-dropdown";
-// import { MomentosdelDia } from "../Database/Otraslistas.js";
-import { FechaContext } from "../Context/FechaContext.js";
+import { ListItem, Button } from "@rneui/themed";
+import { dbcat } from "../Database/firebase.js";
 import SpeedDialComp from "../Component/SpeedDial.js";
-import { ref, get, update, where, orderByChild, equalTo, query, remove} from "firebase/database";
+import {
+  ref,
+  get,
+  update,
+  orderByChild,
+  equalTo,
+  query,
+  remove,
+} from "firebase/database";
+import { PacmanIndicator } from "react-native-indicators";
 
+var heightY = Dimensions.get("window").height;
 const ModificarCategoria = (props) => {
   const [categorias, setCategorias] = useState();
   useEffect(() => {
@@ -29,18 +34,17 @@ const ModificarCategoria = (props) => {
           setCategorias(snapshot.val().categorias);
           setLoading(false);
         } else {
-          alert("No se pudieron recuperar los datos");
+          Alert.alert("No se pudieron recuperar los datos");
           setLoading(false);
         }
       });
     };
     fetchData().catch((e) => {
-      Alert(e);
+      Alert.alert(e);
       setLoading(false);
     });
   }, []);
-  
-  const { fechaDb } = useContext(FechaContext);
+
   const [ingreso, setIngreso] = useState({
     Alimento: "",
     AlimentoId: "x",
@@ -48,82 +52,84 @@ const ModificarCategoria = (props) => {
     Calorias: "",
   });
   const [valueAlimentos, setvalueAlimentos] = useState();
-  if (categorias) { 
-  var AlimentoFiltrado = categorias
-    .filter((val) =>
-      String(val.Alimento)
-        .toLowerCase()
-        .includes(String(valueAlimentos).toLowerCase()))
-    .splice(0, 30)}
+  if (categorias) {
+    var AlimentoFiltrado = categorias
+      .filter((val) =>
+        String(val.Alimento)
+          .toLowerCase()
+          .includes(String(valueAlimentos).toLowerCase())
+      )
+      .splice(0, 30);
+  }
   const [loading, setLoading] = useState(true);
-  
+
   const ActualizarCat = async () => {
     let calorias = Number(ingreso.Calorias.replace(/,/g, "."));
     if (!calorias || calorias < 0) {
-      alert("", "Ingrese un número de caloría por porción válida");
+      Alert.alert("", "Ingrese un número de caloría por porción válida");
     } else
       try {
         setLoading(true);
         const dbRef = ref(dbcat, "categorias/");
         let q = query(dbRef, orderByChild("Id"), equalTo(ingreso.AlimentoId));
-        get(q).then((results) => 
-        results.forEach((snapshot) => {
-          const newDbref= ref(dbcat, "categorias/" + snapshot.key);
-          update(newDbref, {
-              "Id": ingreso.AlimentoId,
-              "Alimento": ingreso.Alimento,
-              "Porcion": ingreso.Porcion,
-              "Calorias": ingreso.Calorias
-            })
-            .then(() => {
-              alert("Actualizado")
-              setLoading(false)
-              props.navigation.navigate("NuevoIngreso")
+        get(q).then((results) =>
+          results.forEach((snapshot) => {
+            const newDbref = ref(dbcat, "categorias/" + snapshot.key);
+            update(newDbref, {
+              Id: ingreso.AlimentoId,
+              Alimento: ingreso.Alimento,
+              Porcion: ingreso.Porcion,
+              Calorias: ingreso.Calorias,
+            }).then(() => {
+              Alert.alert("Actualizado");
+              setLoading(false);
+              props.navigation.navigate("NuevoIngreso");
             });
-        }))
-        }
- catch (e) {
-  setLoading(false);
-  alert(e);
-}};
-const alertaConfirmacion = () => {
-  Alert.alert(
-    "Eliminando Categoría",
-    "¿Está seguro?",
-    [
-      { text: "Confirmar", onPress: () => EliminarCat() },
-      { text: "Cancelar", onPress: () => console.log("canceled") },
-    ],
-    {
-      cancelable: true,
-    }
-  );
-};
-const EliminarCat = async () => {
-      try {
+          })
+        );
+      } catch (e) {
+        setLoading(false);
+        Alert.alert(e);
+      }
+  };
+  const alertaConfirmacion = () => {
+    Alert.alert(
+      "Eliminando Categoría",
+      "¿Está seguro?",
+      [
+        { text: "Confirmar", onPress: () => EliminarCat() },
+        { text: "Cancelar", onPress: () => console.log("canceled") },
+      ],
+      {
+        cancelable: true,
+      }
+    );
+  };
+  const EliminarCat = async () => {
+    try {
       setLoading(true);
       const dbRef = ref(dbcat, "categorias/");
       let q = query(dbRef, orderByChild("Id"), equalTo(ingreso.AlimentoId));
-      get(q).then((results) => 
-      results.forEach((snapshot) => {
-        const newDbref= ref(dbcat, "categorias/" + snapshot.key);
-        remove(newDbref)
-          .then(() => {
-            alert("Eliminado")
-            setLoading(false)
-            props.navigation.navigate("NuevoIngreso")
+      get(q).then((results) =>
+        results.forEach((snapshot) => {
+          const newDbref = ref(dbcat, "categorias/" + snapshot.key);
+          remove(newDbref).then(() => {
+            Alert.alert("Eliminado");
+            setLoading(false);
+            props.navigation.navigate("NuevoIngreso");
           });
-      }))
-      }
-catch (e) {
-setLoading(false);
-alert(e);
-}};
+        })
+      );
+    } catch (e) {
+      setLoading(false);
+      Alert.alert(e);
+    }
+  };
 
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#9E9E9E" />
+        <PacmanIndicator size={100} />
         <Button
           buttonStyle={{ backgroundColor: "gray" }}
           title="Volver"
@@ -134,7 +140,6 @@ alert(e);
         />
       </View>
     );
-    
   }
   return (
     <>
@@ -155,7 +160,7 @@ alert(e);
             }}
           ></TextInput>
         </SafeAreaView>
-        <ScrollView style={styles.formulario2}>
+        <ScrollView style={styles.lista}>
           {valueAlimentos && valueAlimentos.length > 2
             ? AlimentoFiltrado.map((val) => (
                 <ListItem
@@ -170,7 +175,6 @@ alert(e);
                       Calorias: val.Calorias,
                     });
                     setvalueAlimentos("");
-                    
                   }}
                 >
                   <ListItem.Content>
@@ -185,9 +189,7 @@ alert(e);
           <TextInput
             style={styles.input3}
             value={ingreso.Porcion}
-            onChangeText={(value) =>
-              setIngreso({ ...ingreso, Porcion: value })
-            }
+            onChangeText={(value) => setIngreso({ ...ingreso, Porcion: value })}
           ></TextInput>
         </SafeAreaView>
         <SafeAreaView style={styles.formulario}>
@@ -204,15 +206,16 @@ alert(e);
           <Button
             containerStyle={styles.buttton}
             title="Actualizar"
-            onPress={() => ActualizarCat ()}
+            onPress={() => ActualizarCat()}
+            color="#8FBC8F"
           />
         </View>
-        <View style={styles.buttton}>
+        <View style={styles.buttton2}>
           <Button
-            buttonStyle={{ backgroundColor: "red" }}
             containerStyle={styles.buttton}
             title="Eliminar"
-            onPress={() => alertaConfirmacion ()}
+            onPress={() => alertaConfirmacion()}
+            color="#c0261c"
           />
         </View>
 
@@ -224,21 +227,14 @@ alert(e);
 };
 
 const styles = StyleSheet.create({
-  fechaDb: {
-    position: "absolute",
-    marginTop: 0,
-    textAlign: "right",
-    width: "100%",
-    fontSize: 16,
-  },
   titulo: {
-    marginTop: 20,
+    marginTop: 55,
     alignItems: "center",
-    fontSize: 30,
+    fontSize: heightY * 0.04,
     justifyContent: "center",
     textAlign: "center",
-    color: "blue",
-    marginBottom: 10,
+    color: "#7c917f",
+    marginBottom: 30,
     fontWeight: "bold",
   },
   container: {},
@@ -254,80 +250,42 @@ const styles = StyleSheet.create({
   formulario: {
     flexDirection: "row",
   },
-  formulario2: {
-    width: 200,
-    alignContent: "center",
-    alignSelf: "center",
-    marginStart: 150,
-    maxHeight: 300,
-  },
   text: {
-    fontSize: 20,
-    width: 200,
+    fontSize: heightY * 0.027,
+    width: "48.5%",
     alignContent: "center",
     alignItems: "center",
     textAlign: "center",
     textAlignVertical: "center",
-  },
-  text2: {
-    fontSize: 15,
-    width: 200,
-    alignContent: "center",
-    alignItems: "center",
-    textAlign: "center",
-    textAlignVertical: "center",
-    marginTop: 20,
-    marginBottom: 20,
-  },
-
-  input2: {
-    height: 50,
-    borderWidth: 0.5,
-    padding: 10,
-    minWidth: 200,
-    fontSize: 15,
-    borderRadius: 10,
-    textAlign: "center",
   },
   input3: {
     height: 60,
     borderWidth: 0.5,
     padding: 10,
-    minWidth: 200,
-    maxWidth: 200,
-    fontSize: 15,
+    width: "48.5%",
+    fontSize: heightY * 0.021,
     borderRadius: 10,
     marginTop: 10,
     textAlign: "left",
   },
-  hidden: {
-    hidden: false,
-    height: 0,
-  },
   buttton: {
-    width: 320,
+    width: "88%",
     alignContent: "center",
-    marginTop: 10,
-    marginStart: 25,
+    marginTop: 30,
+    marginStart: "6.5%",
   },
   buttton2: {
-    alignItems: "center",
+    width: "88%",
+    alignContent: "center",
     marginTop: 0,
-    backgroundColor: "gray",
-  },
-  dropdown: {
-    alignItems: "center",
-    borderWidth: 0.5,
-    borderColor: "#444",
-    borderRadius: 10,
-    width: 200,
-    marginTop: 10,
+    marginStart: "6.5%",
   },
   lista: {
-    position: "relative",
-    flexDirection: "row",
-    marginTop: 100,
-    marginStart: -100,
+    width: "55%",
+    alignContent: "center",
+    alignSelf: "center",
+    marginStart: "40%",
+    maxHeight: "50%",
   },
 });
 

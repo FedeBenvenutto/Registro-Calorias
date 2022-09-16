@@ -1,11 +1,6 @@
-import {
-  deleteDoc,
-  doc,
-  getDoc,
-  setDoc,
-} from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { db, dbcat } from "../Database/firebase.js";
-import React, { useEffect, useState, useContext, useLayoutEffect } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -13,8 +8,8 @@ import {
   SafeAreaView,
   StyleSheet,
   Alert,
-  ActivityIndicator,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { Button, ListItem } from "@rneui/themed";
 import SelectDropdown from "react-native-select-dropdown";
@@ -22,18 +17,19 @@ import { FechaContext } from "../Context/FechaContext.js";
 import SpeedDialComp from "../Component/SpeedDial.js";
 import { MomentosdelDia } from "../Database/Otraslistas.js";
 import { ref, get } from "firebase/database";
-import { DatePicker } from 'react-native-woodpicker'
+import { DatePicker } from "react-native-woodpicker";
+import { PacmanIndicator } from "react-native-indicators";
 
+var heightY = Dimensions.get("window").height;
 const GastoDetalle = (props) => {
-
-  const { fechaDb, setMes, setAno, setDia, Meses} = useContext(FechaContext);
+  const { fechaDb, setMes, setAno, setDia, Meses } = useContext(FechaContext);
   const [categorias, setCategorias] = useState();
   const [pickedDate, setPickedDate] = useState(new Date());
   useEffect(() => {
-    setAno((pickedDate.getFullYear()).toString());
-    setMes(Meses[pickedDate.getMonth()])
-    setDia(pickedDate.getDate())
-  }, [pickedDate]); 
+    setAno(pickedDate.getFullYear().toString());
+    setMes(Meses[pickedDate.getMonth()]);
+    setDia(pickedDate.getDate());
+  }, [pickedDate]);
   const fetchData = async () => {
     const dbRef = ref(dbcat);
     await get(dbRef).then((snapshot) => {
@@ -41,7 +37,7 @@ const GastoDetalle = (props) => {
         setCategorias(snapshot.val().categorias);
         setLoading(false);
       } else {
-        Alert("No se pudieron recuperar los datos");
+        Alert.alert("No se pudieron recuperar los datos");
         setLoading(false);
       }
     });
@@ -58,7 +54,7 @@ const GastoDetalle = (props) => {
     TotalCalorias: "",
   });
   const [valueAlimentos, setvalueAlimentos] = useState();
-  
+
   const getIngresoById = async (id) => {
     const docRef = doc(db, fechaDb, id);
     try {
@@ -67,8 +63,8 @@ const GastoDetalle = (props) => {
         setIngreso({ ...ingreso, id: doc.id });
       });
     } catch (e) {
-      alert(e);
-      setLoading(false)
+      Alert.alert(e);
+      setLoading(false);
     }
   };
 
@@ -134,31 +130,41 @@ const GastoDetalle = (props) => {
         props.navigation.navigate("Veringreso");
       }
     } catch (e) {
-      alert(e);
-      setLoading(false)
+      Alert.alert(e);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     getIngresoById(props.route.params.ingresoId);
     fetchData().catch((e) => {
-      Alert(e);
+      Alert.alert(e);
       setLoading(false);
-    })
+    });
   }, []);
   if (categorias) {
     var AlimentoFiltrado = categorias
       .filter((val) =>
         String(val.Alimento)
           .toLowerCase()
-          .includes(String(valueAlimentos).toLowerCase()))
-      .splice(0, 30)}
+          .includes(String(valueAlimentos).toLowerCase())
+      )
+      .splice(0, 30);
+  }
   const [loading, setLoading] = useState(true);
 
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#9E9E9E" />
+        <PacmanIndicator size={100} />
+        <Button
+          buttonStyle={{ backgroundColor: "gray" }}
+          title="Volver"
+          onPress={() => {
+            setLoading(false);
+            props.navigation.navigate("NuevoIngreso");
+          }}
+        />
       </View>
     );
   }
@@ -166,19 +172,19 @@ const GastoDetalle = (props) => {
   return (
     <>
       <ScrollView style={styles.container}>
-        <Text style={styles.titulo}>INGRESO NUEVO ALIMENTO</Text>
+        <Text style={styles.titulo}>DETALLE DEL INGRESO</Text>
         <SafeAreaView style={styles.formulario}>
           <Text style={styles.text}> Día </Text>
           <DatePicker
-        value={pickedDate}
-        onDateChange={(date) => setPickedDate(date)}
-        title="Date Picker"
-        text={fechaDb}
-        isNullable={false}
-        style={styles.pickerStyle}
-        androidDisplay="default"
-        textInputStyle={styles.textPicker}
-      />
+            value={pickedDate}
+            onDateChange={(date) => setPickedDate(date)}
+            title="Date Picker"
+            text={fechaDb}
+            isNullable={false}
+            style={styles.pickerStyle}
+            androidDisplay="default"
+            textInputStyle={styles.textPicker}
+          />
         </SafeAreaView>
 
         <SafeAreaView style={styles.formulario}>
@@ -194,8 +200,7 @@ const GastoDetalle = (props) => {
             }}
             buttonStyle={styles.dropdown}
             defaultButtonText={"Seleccione una opción"}
-            dropdownStyle={{ marginStart: -60, width: 260 }}
-            rowStyle={styles.dropdown1RowStyle}
+            dropdownStyle={styles.dropdown2}
             defaultValueByIndex={ingreso.MomentodelDiaIndex}
           />
         </SafeAreaView>
@@ -213,7 +218,7 @@ const GastoDetalle = (props) => {
             }}
           ></TextInput>
         </SafeAreaView>
-        <ScrollView style={styles.formulario2}>
+        <ScrollView style={styles.lista}>
           {valueAlimentos && valueAlimentos.length > 2
             ? AlimentoFiltrado.map((val) => (
                 <ListItem
@@ -274,13 +279,14 @@ const GastoDetalle = (props) => {
             containerStyle={styles.buttton}
             title="Actualizar"
             onPress={() => actualizarIngreso()}
+            color="#8FBC8F"
           />
         </View>
         <View style={styles.buttton}>
           <Button
             containerStyle={styles.buttton}
             title="Eliminar"
-            buttonStyle={{ backgroundColor: "orangered" }}
+            color="#c0261c"
             onPress={() => {
               alertaConfirmacion();
             }}
@@ -298,16 +304,14 @@ const styles = StyleSheet.create({
   titulo: {
     marginTop: 20,
     alignItems: "center",
-    fontSize: 30,
+    fontSize: heightY * 0.04,
     justifyContent: "center",
     textAlign: "center",
-    color: "blue",
+    color: "#7c917f",
     marginBottom: 10,
     fontWeight: "bold",
   },
-  container: {
-
-  },
+  container: {},
   loader: {
     left: 0,
     right: 0,
@@ -320,91 +324,74 @@ const styles = StyleSheet.create({
   formulario: {
     flexDirection: "row",
   },
-  formulario2: {
-    width: 200,
-    alignContent: 'center',
-    alignSelf: 'center', 
-    marginStart: 150,
-    maxHeight: 300
+  lista: {
+    width: "55%",
+    alignContent: "center",
+    alignSelf: "center",
+    marginStart: "40%",
+    maxHeight: "10%",
   },
   text: {
-    fontSize: 20,
-    width: 200,
+    fontSize: heightY * 0.027,
+    width: "48.5%",
     alignContent: "center",
     alignItems: "center",
     textAlign: "center",
     textAlignVertical: "center",
   },
   text2: {
-    fontSize: 15,
-    width: 200,
+    fontSize: heightY * 0.02,
+    width: "48.5%",
     alignContent: "center",
     alignItems: "center",
     textAlign: "center",
     textAlignVertical: "center",
     marginTop: 20,
-    marginBottom: 20
-  },
-
-  input2: {
-    height: 50,
-    borderWidth: 0.5,
-    padding: 10,
-    minWidth: 200,
-    fontSize: 15,
-    borderRadius: 10,
-    textAlign: "center",
+    marginBottom: 20,
   },
   input3: {
-    height: 60,
+    height: "90%",
     borderWidth: 0.5,
     padding: 10,
-    minWidth: 200,
-    maxWidth: 200,
-    fontSize: 15,
+    width: "48.5%",
+    fontSize: heightY * 0.02,
     borderRadius: 10,
     marginTop: 10,
-    textAlign: 'center',
-  },
-  hidden: {
-    hidden: false,
-    height: 0,
+    textAlign: "center",
   },
   buttton: {
-    width: 320,
+    width: "88%",
     alignContent: "center",
     marginTop: 10,
-    marginStart: 25,
+    marginStart: "6.5%",
   },
   dropdown: {
     alignItems: "center",
     borderWidth: 0.5,
     borderColor: "#444",
     borderRadius: 10,
-    width: 200,
+    width: "48.5%",
     marginTop: 10,
   },
-  lista: {
-    position: 'relative',
-    flexDirection: 'row',
-    marginTop: 100,
-    marginStart: -100
-    },
- pickerStyle: {
-      height: 50,
-      alignItems: "center",
-      borderWidth: 0.5,
-      borderColor: "#444",
-      borderRadius: 10,
-      width: 200,
-      marginTop: 10,
-      textAlign: 'center',
-      alignContent: 'center',
-    },
-    textPicker: {
-      alignSelf: 'center',
-      fontSize: 15
-    }    
+  dropdown2: {
+    marginTop: "-10%",
+    width: "50%",
+  },
+  pickerStyle: {
+    height: 50,
+    alignItems: "center",
+    borderWidth: 0.5,
+    borderColor: "#444",
+    borderRadius: 10,
+    width: "126%",
+    marginTop: 10,
+    textAlign: "center",
+    alignContent: "center",
+  },
+  textPicker: {
+    alignSelf: "center",
+    fontSize: heightY * 0.02,
+  },
 });
 
 export default GastoDetalle;

@@ -1,28 +1,28 @@
 import React, { useState, useEffect, useContext } from "react";
-import { StyleSheet, View, ActivityIndicator} from "react-native";
-import { ListItem } from "@rneui/themed";
+import { StyleSheet, View, Dimensions } from "react-native";
+import { ListItem, Button } from "@rneui/themed";
 import { ScrollView } from "react-native-gesture-handler";
 import { db } from "../Database/firebase.js";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, onSnapshot, query } from "firebase/firestore";
 import { FechaContext } from "../Context/FechaContext.js";
 import { MomentosdelDia as MomentodelDia } from "../Database/Otraslistas.js";
 import SpeedDialComp from "../Component/SpeedDial.js";
-import { DatePicker } from 'react-native-woodpicker'
+import { DatePicker } from "react-native-woodpicker";
+import { PacmanIndicator } from "react-native-indicators";
 
-
-
+var heightY = Dimensions.get("window").height;
 const Totales = () => {
   const [ingresos, setIngresos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(true);
   const [expanded2, setExpanded2] = useState(true);
-  const {fechaDb, Meses, DiasSemana, setAno, setMes, setDia } = useContext(FechaContext);
+  const { fechaDb, Meses, setAno, setMes, setDia } = useContext(FechaContext);
   const [pickedDate, setPickedDate] = useState(new Date());
   useEffect(() => {
-    setAno((pickedDate.getFullYear()).toString());
-    setMes(Meses[pickedDate.getMonth()])
-    setDia(pickedDate.getDate())
-  }, [pickedDate]); 
+    setAno(pickedDate.getFullYear().toString());
+    setMes(Meses[pickedDate.getMonth()]);
+    setDia(pickedDate.getDate());
+  }, [pickedDate]);
 
   useEffect(() => {
     const collectionRef = collection(db, fechaDb);
@@ -50,7 +50,15 @@ const Totales = () => {
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#9E9E9E" />
+        <PacmanIndicator size={100} />
+        <Button
+          buttonStyle={{ backgroundColor: "gray" }}
+          title="Volver"
+          onPress={() => {
+            setLoading(false);
+            props.navigation.navigate("NuevoIngreso");
+          }}
+        />
       </View>
     );
   }
@@ -64,57 +72,53 @@ const Totales = () => {
   return (
     <>
       <View style={styles.container}>
-      <DatePicker
-        value={pickedDate}
-        onDateChange={(date) => setPickedDate(date)}
-        title="Date Picker"
-        text={fechaDb}
-        isNullable={false}
-        style={styles.pickerStyle}
-        androidDisplay="default"
-      />
+        <DatePicker
+          value={pickedDate}
+          onDateChange={(date) => setPickedDate(date)}
+          title="Date Picker"
+          text={fechaDb}
+          isNullable={false}
+          style={styles.pickerStyle}
+          androidDisplay="default"
+        />
         <ScrollView>
           <ListItem.Accordion
+            containerStyle={styles.text4}
             content={
-              <>
-                <ListItem.Content>
-                  <ListItem.Title style={styles.text}>
-                    TOTAL CALORIAS DEL DÍA
-                  </ListItem.Title>
-                </ListItem.Content>
-              </>
+              <ListItem.Content>
+                <ListItem.Title style={styles.text}>
+                  TOTAL CALORIAS DEL DÍA
+                </ListItem.Title>
+              </ListItem.Content>
             }
             isExpanded={expanded}
             onPress={() => {
               setExpanded(!expanded);
             }}
           >
-            <ListItem.Content>
-              <ListItem.Title style={styles.text3}>
-                 {sumaTotal}
-              </ListItem.Title>
+            <ListItem.Content style={styles.lista}>
+              <ListItem.Title style={styles.text3}>{sumaTotal}</ListItem.Title>
             </ListItem.Content>
           </ListItem.Accordion>
           <ListItem.Accordion
+            containerStyle={styles.text4}
             content={
-              <>
-                <ListItem.Content>
-                  <ListItem.Title style={styles.text}>
-                    TOTAL POR MOMENTO DEL DÍA
-                  </ListItem.Title>
-                </ListItem.Content>
-              </>
+              <ListItem.Content>
+                <ListItem.Title style={styles.text5}>
+                  TOTAL POR MOMENTO DEL DÍA
+                </ListItem.Title>
+              </ListItem.Content>
             }
             isExpanded={expanded2}
             onPress={() => {
               setExpanded2(!expanded2);
             }}
           >
-            <ListItem.Content>
+            <ListItem.Content style={styles.lista}>
               {MomentodelDia.map((ingreso, i) => (
                 <ListItem.Title style={styles.text2} key={i}>
                   {" "}
-                  {MomentodelDia[i]} :  {sumaMom[i]}
+                  {MomentodelDia[i]} : {sumaMom[i]}
                 </ListItem.Title>
               ))}
             </ListItem.Content>
@@ -138,36 +142,55 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   text: {
-    fontSize: 19,
+    fontSize: heightY * 0.025,
     opacity: 0.6,
     textAlign: "center",
     fontWeight: "bold",
-    marginStart: 10,
+    marginStart: "17%",
+    color: "white",
   },
   text2: {
-    fontSize: 18,
+    fontSize: heightY * 0.024,
     opacity: 0.6,
     textAlign: "center",
     fontWeight: "bold",
-    backgroundColor: "darkkhaki",
-    width: 400,
+    backgroundColor: "chocolate",
+    width: "95%",
+    marginStart: 10,
+    lineHeight: 30,
   },
   text3: {
-    fontSize: 20,
+    fontSize: heightY * 0.027,
     opacity: 0.6,
     textAlign: "center",
     fontWeight: "bold",
-    backgroundColor: "darkkhaki",
-    width: 400,
+    backgroundColor: "chocolate",
+    width: "95%",
+    marginStart: 10,
   },
   pickerStyle: {
-    alignItems: 'flex-end',
-    alignSelf: 'flex-end',
-    alignContent: 'flex-end',
-    textAlign: 'flex-end',
+    alignItems: "flex-end",
+    alignSelf: "flex-end",
+    alignContent: "flex-end",
+    textAlign: "flex-end",
     height: 50,
-    marginStart: 10,
-    width: 185,
+    width: "48%",
+  },
+  lista: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  text4: {
+    backgroundColor: "saddlebrown",
+  },
+  text5: {
+    backgroundColor: "saddlebrown",
+    fontSize: heightY * 0.024,
+    opacity: 0.6,
+    textAlign: "center",
+    fontWeight: "bold",
+    marginStart: "5%",
+    color: "white",
   },
 });
 

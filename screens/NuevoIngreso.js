@@ -6,40 +6,41 @@ import {
   SafeAreaView,
   StyleSheet,
   Alert,
-  ActivityIndicator,
   ScrollView,
+  Dimensions,
 } from "react-native";
-import { ListItem, Avatar } from "@rneui/themed";
-import { Button } from "@rneui/themed";
+import { ListItem, Button } from "@rneui/themed";
 import { db, dbcat } from "../Database/firebase.js";
-import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import SelectDropdown from "react-native-select-dropdown";
 import { MomentosdelDia as MomentodelDia } from "../Database/Otraslistas.js";
 import { FechaContext } from "../Context/FechaContext.js";
 import SpeedDialComp from "../Component/SpeedDial.js";
 import { ref, get } from "firebase/database";
-import { DatePicker } from 'react-native-woodpicker'
+import { DatePicker } from "react-native-woodpicker";
+import { PacmanIndicator } from "react-native-indicators";
 
+var heightY = Dimensions.get("window").height;
 const NuevoIngreso = (props) => {
-  const { fechaDb, setMes, setAno, setDia, Meses} = useContext(FechaContext);
+  const { fechaDb, setMes, setAno, setDia, Meses } = useContext(FechaContext);
   const [categorias, setCategorias] = useState();
   const [pickedDate, setPickedDate] = useState(new Date());
 
   useEffect(() => {
-    setAno((pickedDate.getFullYear()).toString());
-    setMes(Meses[pickedDate.getMonth()])
-    setDia(pickedDate.getDate())
-  }, [pickedDate]); 
+    setAno(pickedDate.getFullYear().toString());
+    setMes(Meses[pickedDate.getMonth()]);
+    setDia(pickedDate.getDate());
+  }, [pickedDate]);
 
   useEffect(() => {
-    const fetchData = async () => {    
+    const fetchData = async () => {
       const dbRef = ref(dbcat);
       await get(dbRef).then((snapshot) => {
         if (snapshot.exists()) {
           setCategorias(snapshot.val().categorias);
           setLoading(false);
         } else {
-          alert("No se pudieron recuperar los datos");
+          Alert.alert("No se pudieron recuperar los datos");
           setLoading(false);
         }
       });
@@ -48,8 +49,8 @@ const NuevoIngreso = (props) => {
       Alert(e);
       setLoading(false);
     });
-  }, []); 
-  
+  }, []);
+
   const [ingreso, setIngreso] = useState({
     MomentodelDia: "",
     MomentodelDiaIndex: "x",
@@ -63,12 +64,14 @@ const NuevoIngreso = (props) => {
   });
   const [valueAlimentos, setvalueAlimentos] = useState();
   if (categorias) {
-  var AlimentoFiltrado = categorias
-    .filter((val) =>
-      String(val.Alimento)
-        .toLowerCase()
-        .includes(String(valueAlimentos).toLowerCase()))
-    .splice(0, 30)}
+    var AlimentoFiltrado = categorias
+      .filter((val) =>
+        String(val.Alimento)
+          .toLowerCase()
+          .includes(String(valueAlimentos).toLowerCase())
+      )
+      .splice(0, 30);
+  }
   const [loading, setLoading] = useState(true);
   const saveNewIngreso = async () => {
     let calorias = Number(ingreso.Calorias);
@@ -103,16 +106,16 @@ const NuevoIngreso = (props) => {
           TotalCalorias: "",
         });
         setLoading(false);
-        alert("", "Agregado");
+        Alert.alert("", "Agregado");
       } catch (e) {
         setLoading(false);
-        alert(e);
+        Alert.alert(e);
       }
   };
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#9E9E9E" />
+        <PacmanIndicator size={100} />
         <Button
           buttonStyle={{ backgroundColor: "gray" }}
           title="Volver"
@@ -131,19 +134,17 @@ const NuevoIngreso = (props) => {
         <SafeAreaView style={styles.formulario}>
           <Text style={styles.text}> Día </Text>
           <DatePicker
-        value={pickedDate}
-        onDateChange={(date) => setPickedDate(date)}
-        title="Date Picker"
-        text={fechaDb}
-        isNullable={false}
-        style={styles.pickerStyle}
-        androidDisplay="default"
-        textInputStyle={styles.textPicker}
-      />
+            value={pickedDate}
+            onDateChange={(date) => setPickedDate(date)}
+            title="Date Picker"
+            text={fechaDb}
+            isNullable={false}
+            style={styles.pickerStyle}
+            androidDisplay="default"
+            textInputStyle={styles.textPicker}
+          />
         </SafeAreaView>
-        <View>
-      
-    </View>
+        <View></View>
 
         <SafeAreaView style={styles.formulario}>
           <Text style={styles.text}> Momento </Text>
@@ -158,8 +159,7 @@ const NuevoIngreso = (props) => {
             }}
             buttonStyle={styles.dropdown}
             defaultButtonText={"Seleccione una opción"}
-            dropdownStyle={{ marginStart: -60, width: 260 }}
-            rowStyle={styles.dropdown1RowStyle}
+            dropdownStyle={styles.dropdown2}
           />
         </SafeAreaView>
         <SafeAreaView style={styles.formulario}>
@@ -176,7 +176,7 @@ const NuevoIngreso = (props) => {
             }}
           ></TextInput>
         </SafeAreaView>
-        <ScrollView style={styles.formulario2}>
+        <ScrollView style={styles.lista}>
           {valueAlimentos && valueAlimentos.length > 2
             ? AlimentoFiltrado.map((val) => (
                 <ListItem
@@ -236,6 +236,7 @@ const NuevoIngreso = (props) => {
             containerStyle={styles.buttton}
             title="Agregar"
             onPress={() => saveNewIngreso()}
+            color="#8FBC8F"
           />
         </View>
 
@@ -247,20 +248,13 @@ const NuevoIngreso = (props) => {
 };
 
 const styles = StyleSheet.create({
-  fechaDb: {
-    position: "absolute",
-    marginTop: 0,
-    textAlign: "right",
-    width: "100%",
-    fontSize: 16,
-  },
   titulo: {
     marginTop: 20,
     alignItems: "center",
-    fontSize: 30,
+    fontSize: heightY * 0.04,
     justifyContent: "center",
     textAlign: "center",
-    color: "blue",
+    color: "#7c917f",
     marginBottom: 10,
     fontWeight: "bold",
   },
@@ -277,24 +271,24 @@ const styles = StyleSheet.create({
   formulario: {
     flexDirection: "row",
   },
-  formulario2: {
-    width: 200,
+  lista: {
+    width: "55%",
     alignContent: "center",
     alignSelf: "center",
-    marginStart: 150,
-    maxHeight: 300,
+    marginStart: "40%",
+    maxHeight: "10%",
   },
   text: {
-    fontSize: 20,
-    width: 200,
+    fontSize: heightY * 0.027,
+    width: "48.5%",
     alignContent: "center",
     alignItems: "center",
     textAlign: "center",
     textAlignVertical: "center",
   },
   text2: {
-    fontSize: 15,
-    width: 200,
+    fontSize: heightY * 0.02,
+    width: "48.5%",
     alignContent: "center",
     alignItems: "center",
     textAlign: "center",
@@ -302,55 +296,33 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
   },
-
-  input2: {
-    height: 50,
-    borderWidth: 0.5,
-    padding: 10,
-    minWidth: 200,
-    fontSize: 15,
-    borderRadius: 10,
-    textAlign: "center",
-  },
   input3: {
-    height: 60,
+    height: "90%",
     borderWidth: 0.5,
     padding: 10,
-    minWidth: 200,
-    maxWidth: 200,
+    width: "48.5%",
     fontSize: 15,
     borderRadius: 10,
     marginTop: 10,
     textAlign: "center",
-  },
-  hidden: {
-    hidden: false,
-    height: 0,
   },
   buttton: {
-    width: 320,
+    width: "88%",
     alignContent: "center",
     marginTop: 10,
-    marginStart: 25,
-  },
-  buttton2: {
-    alignItems: "center",
-    marginTop: 0,
-    backgroundColor: "gray",
+    marginStart: "6.5%",
   },
   dropdown: {
     alignItems: "center",
     borderWidth: 0.5,
     borderColor: "#444",
     borderRadius: 10,
-    width: 200,
+    width: "48.5%",
     marginTop: 10,
   },
-  lista: {
-    position: "relative",
-    flexDirection: "row",
-    marginTop: 100,
-    marginStart: -100,
+  dropdown2: {
+    marginTop: "-10%",
+    width: "50%",
   },
   pickerStyle: {
     height: 50,
@@ -358,15 +330,15 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#444",
     borderRadius: 10,
-    width: 200,
+    width: "126%",
     marginTop: 10,
-    textAlign: 'center',
-    alignContent: 'center',
+    textAlign: "center",
+    alignContent: "center",
   },
   textPicker: {
-    alignSelf: 'center',
-    fontSize: 15
-  }
+    alignSelf: "center",
+    fontSize: heightY * 0.02,
+  },
 });
 
 export default NuevoIngreso;
