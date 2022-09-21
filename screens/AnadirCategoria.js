@@ -9,9 +9,8 @@ import {
 } from "react-native";
 import { Button } from "@rneui/themed";
 import { dbcat } from "../Database/firebase.js";
-import SpeedDialComp from "../Component/SpeedDial.js";
 import { ref, get, update } from "firebase/database";
-import { PacmanIndicator } from "react-native-indicators";
+import Loader from "../Component/Loader.js";
 
 var heightY = Dimensions.get("window").height;
 const AnadirCategoria = (props) => {
@@ -68,24 +67,12 @@ const AnadirCategoria = (props) => {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loader}>
-        <PacmanIndicator size={100} />
-        <Button
-          buttonStyle={{ backgroundColor: "gray" }}
-          title="Volver"
-          onPress={() => {
-            setLoading(false);
-            props.navigation.navigate("NuevoIngreso");
-          }}
-        />
-      </View>
-    );
+    return <Loader setLoading={setLoading} navigation={props.navigation} />;
   }
   return (
     <>
       <View style={styles.container}>
-        <Text style={styles.titulo}> AÑADIR CATEGORIA</Text>
+        <Text style={styles.titulo}> AÑADIR ALIMENTOS</Text>
         <SafeAreaView style={styles.formulario}>
           <Text style={styles.text}> Nombre del Alimento </Text>
           <TextInput
@@ -131,7 +118,6 @@ const AnadirCategoria = (props) => {
 
         <View style={styles.buttton}></View>
       </View>
-      <SpeedDialComp />
     </>
   );
 };
@@ -148,7 +134,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   container: {
-    marginTop: 55,
+    marginTop: 80,
   },
   loader: {
     left: 0,

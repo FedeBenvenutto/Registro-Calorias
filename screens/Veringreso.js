@@ -5,9 +5,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import { db } from "../Database/firebase.js";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { FechaContext } from "../Context/FechaContext.js";
-import SpeedDialComp from "../Component/SpeedDial.js";
 import { DatePicker } from "react-native-woodpicker";
-import { PacmanIndicator } from "react-native-indicators";
+import Loader from "../Component/Loader.js";
 
 const Vergastos = (props) => {
   const [ingresos, setIngresos] = useState([]);
@@ -45,23 +44,11 @@ const Vergastos = (props) => {
     return unsuscribe;
   }, [pickedDate, fechaDb]);
   if (loading) {
-    return (
-      <View style={styles.loader}>
-        <PacmanIndicator size={100} />
-        <Button
-          buttonStyle={{ backgroundColor: "gray" }}
-          title="Volver"
-          onPress={() => {
-            setLoading(false);
-            props.navigation.navigate("NuevoIngreso");
-          }}
-        />
-      </View>
-    );
+    return <Loader setLoading={setLoading} navigation={props.navigation} />;
   }
   return (
     <>
-      <View>
+      <View style={styles.container}>
         <DatePicker
           value={pickedDate}
           onDateChange={(date) => setPickedDate(date)}
@@ -70,6 +57,7 @@ const Vergastos = (props) => {
           isNullable={false}
           style={styles.pickerStyle}
           androidDisplay="default"
+          textInputStyle={{ textAlign: "right" }}
         />
         <ScrollView>
           {ingresos.map((ingreso) => {
@@ -117,7 +105,6 @@ const Vergastos = (props) => {
           })}
         </ScrollView>
       </View>
-      <SpeedDialComp />
     </>
   );
 };
@@ -125,7 +112,7 @@ const Vergastos = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 35,
+    marginTop: 60,
   },
   loader: {
     left: 0,
@@ -137,17 +124,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   pickerStyle: {
-    alignItems: "flex-end",
-    alignSelf: "flex-end",
     alignContent: "flex-end",
-    textAlign: "flex-end",
+    marginEnd: 10,
     height: 50,
-    marginStart: 10,
-    width: "48%",
+    marginStart: "auto",
+    width: "50%",
   },
   lista: {
     backgroundColor: "burlywood",
     marginTop: 5,
+    alignContent: "center",
+    marginStart: 5,
+    marginEnd: 10,
   },
 });
 

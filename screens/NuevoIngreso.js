@@ -15,10 +15,9 @@ import { addDoc, collection } from "firebase/firestore";
 import SelectDropdown from "react-native-select-dropdown";
 import { MomentosdelDia as MomentodelDia } from "../Database/Otraslistas.js";
 import { FechaContext } from "../Context/FechaContext.js";
-import SpeedDialComp from "../Component/SpeedDial.js";
 import { ref, get } from "firebase/database";
 import { DatePicker } from "react-native-woodpicker";
-import { PacmanIndicator } from "react-native-indicators";
+import Loader from "../Component/Loader.js";
 
 var heightY = Dimensions.get("window").height;
 const NuevoIngreso = (props) => {
@@ -113,137 +112,119 @@ const NuevoIngreso = (props) => {
       }
   };
   if (loading) {
-    return (
-      <View style={styles.loader}>
-        <PacmanIndicator size={100} />
-        <Button
-          buttonStyle={{ backgroundColor: "gray" }}
-          title="Volver"
-          onPress={() => {
-            setLoading(false);
-            props.navigation.navigate("NuevoIngreso");
-          }}
-        />
-      </View>
-    );
+    return <Loader setLoading={setLoading} navigation={props.navigation} />;
   }
   return (
-    <>
-      <ScrollView style={styles.container}>
-        <Text style={styles.titulo}>INGRESO NUEVO ALIMENTO</Text>
-        <SafeAreaView style={styles.formulario}>
-          <Text style={styles.text}> Día </Text>
-          <DatePicker
-            value={pickedDate}
-            onDateChange={(date) => setPickedDate(date)}
-            title="Date Picker"
-            text={fechaDb}
-            isNullable={false}
-            style={styles.pickerStyle}
-            androidDisplay="default"
-            textInputStyle={styles.textPicker}
-          />
-        </SafeAreaView>
-        <View></View>
+    <ScrollView style={styles.container}>
+      <Text style={styles.titulo}>INGRESO NUEVO ALIMENTO</Text>
+      <View style={styles.formulario}>
+        <Text style={styles.text}> Día </Text>
+        <DatePicker
+          value={pickedDate}
+          onDateChange={(date) => setPickedDate(date)}
+          title="Date Picker"
+          text={fechaDb}
+          isNullable={false}
+          style={styles.pickerStyle}
+          androidDisplay="default"
+          textInputStyle={styles.textPicker}
+        />
+      </View>
 
-        <SafeAreaView style={styles.formulario}>
-          <Text style={styles.text}> Momento </Text>
-          <SelectDropdown
-            data={MomentodelDia}
-            onSelect={(selectedItem, index) => {
-              setIngreso({
-                ...ingreso,
-                MomentodelDia: selectedItem,
-                MomentodelDiaIndex: index,
-              });
-            }}
-            buttonStyle={styles.dropdown}
-            defaultButtonText={"Seleccione una opción"}
-            dropdownStyle={styles.dropdown2}
-          />
-        </SafeAreaView>
-        <SafeAreaView style={styles.formulario}>
-          <Text style={styles.text}> Alimento</Text>
-          <TextInput
-            style={styles.input3}
-            value={ingreso.Alimento}
-            onChangeText={(value) => {
-              setIngreso({
-                ...ingreso,
-                Alimento: value,
-              });
-              setvalueAlimentos(value);
-            }}
-          ></TextInput>
-        </SafeAreaView>
-        <ScrollView style={styles.lista}>
-          {valueAlimentos && valueAlimentos.length > 2
-            ? AlimentoFiltrado.map((val) => (
-                <ListItem
-                  key={val.Id}
-                  bottomDivider
-                  onPress={() => {
-                    setIngreso({
-                      ...ingreso,
-                      Alimento: val.Alimento,
-                      AlimentoId: val.Id,
-                      Porcion: val.Porcion,
-                      Calorias: val.Calorias,
-                    });
-                    setvalueAlimentos("");
-                  }}
-                >
-                  <ListItem.Content>
-                    <ListItem.Title>{val.Alimento}</ListItem.Title>
-                  </ListItem.Content>
-                </ListItem>
-              ))
-            : ""}
-        </ScrollView>
-
-        <SafeAreaView style={styles.formulario}>
-          <Text style={styles.text}> Porcion</Text>
-          <Text style={styles.text2}> {ingreso.Porcion}</Text>
-        </SafeAreaView>
-        <SafeAreaView style={styles.formulario}>
-          <Text style={styles.text}> Calorías PP</Text>
-          <Text style={styles.text2}> {ingreso.Calorias}</Text>
-        </SafeAreaView>
-        <SafeAreaView style={styles.formulario}>
-          <Text style={styles.text}> Cantidad </Text>
-          <TextInput
-            style={styles.input3}
-            defaultvalue="0"
-            keyboardType="numeric"
-            onChangeText={(value) =>
-              setIngreso({ ...ingreso, Cantidad: value })
-            }
-          ></TextInput>
-        </SafeAreaView>
-        <SafeAreaView style={styles.formulario}>
-          <Text style={styles.text}> Comentario</Text>
-          <TextInput
-            style={styles.input3}
-            multiline
-            value={ingreso.Comentario}
-            onChangeText={(value) =>
-              setIngreso({ ...ingreso, Comentario: value })
-            }
-          ></TextInput>
-        </SafeAreaView>
-        <View style={styles.buttton}>
-          <Button
-            containerStyle={styles.buttton}
-            title="Agregar"
-            onPress={() => saveNewIngreso()}
-            color="#8FBC8F"
-          />
-        </View>
-
-        <View style={styles.buttton}></View>
+      <View style={styles.formulario}>
+        <Text style={styles.text}> Momento </Text>
+        <SelectDropdown
+          data={MomentodelDia}
+          onSelect={(selectedItem, index) => {
+            setIngreso({
+              ...ingreso,
+              MomentodelDia: selectedItem,
+              MomentodelDiaIndex: index,
+            });
+          }}
+          buttonStyle={styles.dropdown}
+          defaultButtonText={"Seleccione una opción"}
+          dropdownStyle={styles.dropdown2}
+        />
+      </View>
+      <SafeAreaView style={styles.formulario}>
+        <Text style={styles.text}> Alimento</Text>
+        <TextInput
+          style={styles.input3}
+          value={ingreso.Alimento}
+          onChangeText={(value) => {
+            setIngreso({
+              ...ingreso,
+              Alimento: value,
+            });
+            setvalueAlimentos(value);
+          }}
+        ></TextInput>
+      </SafeAreaView>
+      <ScrollView style={styles.lista} nestedScrollEnabled={true}>
+        {valueAlimentos && valueAlimentos.length > 2
+          ? AlimentoFiltrado.map((val) => (
+              <ListItem
+                key={val.Id}
+                bottomDivider
+                onPress={() => {
+                  setIngreso({
+                    ...ingreso,
+                    Alimento: val.Alimento,
+                    AlimentoId: val.Id,
+                    Porcion: val.Porcion,
+                    Calorias: val.Calorias,
+                  });
+                  setvalueAlimentos("");
+                }}
+              >
+                <ListItem.Content>
+                  <ListItem.Title>{val.Alimento}</ListItem.Title>
+                </ListItem.Content>
+              </ListItem>
+            ))
+          : ""}
       </ScrollView>
-      <SpeedDialComp />
-    </>
+
+      <SafeAreaView style={styles.formulario}>
+        <Text style={styles.text}> Porcion</Text>
+        <Text style={styles.text2}> {ingreso.Porcion}</Text>
+      </SafeAreaView>
+      <SafeAreaView style={styles.formulario}>
+        <Text style={styles.text}> Calorías PP</Text>
+        <Text style={styles.text2}> {ingreso.Calorias}</Text>
+      </SafeAreaView>
+      <SafeAreaView style={styles.formulario}>
+        <Text style={styles.text}> Cantidad </Text>
+        <TextInput
+          style={styles.input3}
+          defaultvalue="0"
+          keyboardType="numeric"
+          onChangeText={(value) => setIngreso({ ...ingreso, Cantidad: value })}
+        ></TextInput>
+      </SafeAreaView>
+      <SafeAreaView style={styles.formulario}>
+        <Text style={styles.text}> Comentario</Text>
+        <TextInput
+          style={styles.input3}
+          multiline
+          value={ingreso.Comentario}
+          onChangeText={(value) =>
+            setIngreso({ ...ingreso, Comentario: value })
+          }
+        ></TextInput>
+      </SafeAreaView>
+      <View style={styles.buttton}>
+        <Button
+          containerStyle={styles.buttton}
+          title="Agregar"
+          onPress={() => saveNewIngreso()}
+          color="#8FBC8F"
+        />
+      </View>
+
+      <View style={styles.buttton}></View>
+    </ScrollView>
   );
 };
 
@@ -258,7 +239,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontWeight: "bold",
   },
-  container: {},
+  container: {
+    marginTop: 50,
+    height: "auto",
+    maxHeight: "100%",
+    flex: 1,
+  },
   loader: {
     left: 0,
     right: 0,
@@ -272,11 +258,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   lista: {
-    width: "55%",
+    width: "60%",
     alignContent: "center",
     alignSelf: "center",
-    marginStart: "40%",
-    maxHeight: "10%",
+    marginStart: "35%",
+    marginTop: 10,
+    maxHeight: "15%",
   },
   text: {
     fontSize: heightY * 0.027,
@@ -309,7 +296,7 @@ const styles = StyleSheet.create({
   buttton: {
     width: "88%",
     alignContent: "center",
-    marginTop: 10,
+    marginTop: 20,
     marginStart: "6.5%",
   },
   dropdown: {
@@ -328,7 +315,6 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: "center",
     borderWidth: 0.5,
-    borderColor: "#444",
     borderRadius: 10,
     width: "126%",
     marginTop: 10,

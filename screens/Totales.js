@@ -6,12 +6,11 @@ import { db } from "../Database/firebase.js";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { FechaContext } from "../Context/FechaContext.js";
 import { MomentosdelDia as MomentodelDia } from "../Database/Otraslistas.js";
-import SpeedDialComp from "../Component/SpeedDial.js";
 import { DatePicker } from "react-native-woodpicker";
-import { PacmanIndicator } from "react-native-indicators";
+import Loader from "../Component/Loader.js";
 
 var heightY = Dimensions.get("window").height;
-const Totales = () => {
+const Totales = (props) => {
   const [ingresos, setIngresos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(true);
@@ -48,19 +47,7 @@ const Totales = () => {
     return unsuscribe;
   }, [pickedDate, fechaDb]);
   if (loading) {
-    return (
-      <View style={styles.loader}>
-        <PacmanIndicator size={100} />
-        <Button
-          buttonStyle={{ backgroundColor: "gray" }}
-          title="Volver"
-          onPress={() => {
-            setLoading(false);
-            props.navigation.navigate("NuevoIngreso");
-          }}
-        />
-      </View>
-    );
+    return <Loader setLoading={setLoading} navigation={props.navigation} />;
   }
   var sumaTotal = 0;
   var sumaMom = [0, 0, 0, 0, 0, 0, 0];
@@ -79,6 +66,7 @@ const Totales = () => {
           text={fechaDb}
           isNullable={false}
           style={styles.pickerStyle}
+          textInputStyle={{ textAlign: "right" }}
           androidDisplay="default"
         />
         <ScrollView>
@@ -125,13 +113,14 @@ const Totales = () => {
           </ListItem.Accordion>
         </ScrollView>
       </View>
-      <SpeedDialComp />
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    marginTop: 60,
+  },
   loader: {
     left: 0,
     right: 0,
@@ -169,12 +158,11 @@ const styles = StyleSheet.create({
     marginStart: 10,
   },
   pickerStyle: {
-    alignItems: "flex-end",
-    alignSelf: "flex-end",
     alignContent: "flex-end",
-    textAlign: "flex-end",
+    marginEnd: 10,
     height: 50,
-    width: "48%",
+    marginStart: "auto",
+    width: "50%",
   },
   lista: {
     marginTop: 10,

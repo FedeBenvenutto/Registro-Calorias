@@ -14,11 +14,10 @@ import {
 import { Button, ListItem } from "@rneui/themed";
 import SelectDropdown from "react-native-select-dropdown";
 import { FechaContext } from "../Context/FechaContext.js";
-import SpeedDialComp from "../Component/SpeedDial.js";
 import { MomentosdelDia } from "../Database/Otraslistas.js";
 import { ref, get } from "firebase/database";
 import { DatePicker } from "react-native-woodpicker";
-import { PacmanIndicator } from "react-native-indicators";
+import Loader from "../Component/Loader.js";
 
 var heightY = Dimensions.get("window").height;
 const GastoDetalle = (props) => {
@@ -154,19 +153,7 @@ const GastoDetalle = (props) => {
   const [loading, setLoading] = useState(true);
 
   if (loading) {
-    return (
-      <View style={styles.loader}>
-        <PacmanIndicator size={100} />
-        <Button
-          buttonStyle={{ backgroundColor: "gray" }}
-          title="Volver"
-          onPress={() => {
-            setLoading(false);
-            props.navigation.navigate("NuevoIngreso");
-          }}
-        />
-      </View>
-    );
+    return <Loader setLoading={setLoading} navigation={props.navigation} />;
   }
 
   return (
@@ -218,7 +205,7 @@ const GastoDetalle = (props) => {
             }}
           ></TextInput>
         </SafeAreaView>
-        <ScrollView style={styles.lista}>
+        <ScrollView style={styles.lista} nestedScrollEnabled={true}>
           {valueAlimentos && valueAlimentos.length > 2
             ? AlimentoFiltrado.map((val) => (
                 <ListItem
@@ -292,10 +279,8 @@ const GastoDetalle = (props) => {
             }}
           />
         </View>
-
         <View style={styles.buttton}></View>
       </ScrollView>
-      <SpeedDialComp />
     </>
   );
 };
@@ -311,7 +296,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontWeight: "bold",
   },
-  container: {},
+  container: {
+    marginTop: 80,
+  },
   loader: {
     left: 0,
     right: 0,

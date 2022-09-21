@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { ListItem, Button } from "@rneui/themed";
 import { dbcat } from "../Database/firebase.js";
-import SpeedDialComp from "../Component/SpeedDial.js";
 import {
   ref,
   get,
@@ -21,7 +20,7 @@ import {
   query,
   remove,
 } from "firebase/database";
-import { PacmanIndicator } from "react-native-indicators";
+import Loader from "../Component/Loader.js";
 
 var heightY = Dimensions.get("window").height;
 const ModificarCategoria = (props) => {
@@ -127,24 +126,12 @@ const ModificarCategoria = (props) => {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loader}>
-        <PacmanIndicator size={100} />
-        <Button
-          buttonStyle={{ backgroundColor: "gray" }}
-          title="Volver"
-          onPress={() => {
-            setLoading(false);
-            props.navigation.navigate("NuevoIngreso");
-          }}
-        />
-      </View>
-    );
+    return <Loader setLoading={setLoading} navigation={props.navigation} />;
   }
   return (
     <>
       <View style={styles.container}>
-        <Text style={styles.titulo}>MODIFICACION DE CATEGORÍA</Text>
+        <Text style={styles.titulo}>MODIFICAR ALIMENTOS</Text>
 
         <SafeAreaView style={styles.formulario}>
           <Text style={styles.text}> Alimento</Text>
@@ -160,7 +147,7 @@ const ModificarCategoria = (props) => {
             }}
           ></TextInput>
         </SafeAreaView>
-        <ScrollView style={styles.lista}>
+        <ScrollView style={styles.lista} nestedScrollEnabled={true}>
           {valueAlimentos && valueAlimentos.length > 2
             ? AlimentoFiltrado.map((val) => (
                 <ListItem
@@ -218,10 +205,8 @@ const ModificarCategoria = (props) => {
             color="#c0261c"
           />
         </View>
-
         <View style={styles.buttton}></View>
       </View>
-      <SpeedDialComp />
     </>
   );
 };
@@ -237,7 +222,9 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     fontWeight: "bold",
   },
-  container: {},
+  container: {
+    marginTop: 50,
+  },
   loader: {
     left: 0,
     right: 0,
