@@ -113,15 +113,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 60,
-  },
-  loader: {
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
+    maxHeight: "85%"
   },
   pickerStyle: {
     alignContent: "flex-end",
@@ -136,6 +128,7 @@ const styles = StyleSheet.create({
     alignContent: "center",
     marginStart: 5,
     marginEnd: 10,
+    borderRadius: 30
   },
 });
 

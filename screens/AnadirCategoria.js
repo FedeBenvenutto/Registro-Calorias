@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   StyleSheet,
   Dimensions,
+  Alert
 } from "react-native";
 import { Button } from "@rneui/themed";
 import { dbcat } from "../Database/firebase.js";
@@ -39,13 +40,13 @@ const AnadirCategoria = (props) => {
     Id: "",
     Alimento: "",
     Porcion: "",
-    Calorias: "",
+    Calorias: "x",
   });
   const [loading, setLoading] = useState(true);
   const saveNewCat = async () => {
     let calorias = Number(ingreso.Calorias.replace(/,/g, "."));
-    if (!calorias || calorias < 0) {
-      alert("", "Ingrese un número de caloría por porción válida");
+    if (!calorias || calorias < 0 || !ingreso.Alimento || !ingreso.Porcion ) {
+      Alert.alert("", "Complete todos los datos");
     } else
       try {
         setLoading(true);
@@ -56,13 +57,13 @@ const AnadirCategoria = (props) => {
           Porcion: ingreso.Porcion,
           Calorias: ingreso.Calorias,
         }).then(() => {
-          alert("Agregado");
+          Alert.alert("","Agregado");
           setLoading(false);
           props.navigation.navigate("NuevoIngreso");
         });
       } catch (e) {
         setLoading(false);
-        alert(e);
+        Alert.alert(e);
       }
   };
 
@@ -135,15 +136,6 @@ const styles = StyleSheet.create({
   },
   container: {
     marginTop: 80,
-  },
-  loader: {
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
   },
   formulario: {
     flexDirection: "row",

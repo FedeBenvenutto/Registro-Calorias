@@ -64,8 +64,8 @@ const ModificarCategoria = (props) => {
 
   const ActualizarCat = async () => {
     let calorias = Number(ingreso.Calorias.replace(/,/g, "."));
-    if (!calorias || calorias < 0) {
-      Alert.alert("", "Ingrese un número de caloría por porción válida");
+    if (!calorias || calorias < 0 || !ingreso.Porcion || !ingreso.Alimento) {
+      Alert.alert("", "Complete todos los campos");
     } else
       try {
         setLoading(true);
@@ -80,7 +80,13 @@ const ModificarCategoria = (props) => {
               Porcion: ingreso.Porcion,
               Calorias: ingreso.Calorias,
             }).then(() => {
-              Alert.alert("Actualizado");
+              setIngreso({
+                Alimento: "",
+                AlimentoId: "x",
+                Porcion: "",
+                Calorias: "",
+              });
+              Alert.alert("", "Actualizado");
               setLoading(false);
               props.navigation.navigate("NuevoIngreso");
             });
@@ -92,6 +98,9 @@ const ModificarCategoria = (props) => {
       }
   };
   const alertaConfirmacion = () => {
+    if (!ingreso.Calorias || !ingreso.Porcion || !ingreso.Alimento) {
+      Alert.alert("", "Elija un alimento");
+    } else {
     Alert.alert(
       "Eliminando Categoría",
       "¿Está seguro?",
@@ -103,7 +112,7 @@ const ModificarCategoria = (props) => {
         cancelable: true,
       }
     );
-  };
+  }};
   const EliminarCat = async () => {
     try {
       setLoading(true);
@@ -113,7 +122,13 @@ const ModificarCategoria = (props) => {
         results.forEach((snapshot) => {
           const newDbref = ref(dbcat, "categorias/" + snapshot.key);
           remove(newDbref).then(() => {
-            Alert.alert("Eliminado");
+            setIngreso({
+              Alimento: "",
+              AlimentoId: "x",
+              Porcion: "",
+              Calorias: "",
+            });
+            Alert.alert("","Eliminado");
             setLoading(false);
             props.navigation.navigate("NuevoIngreso");
           });
@@ -224,15 +239,6 @@ const styles = StyleSheet.create({
   },
   container: {
     marginTop: 50,
-  },
-  loader: {
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
   },
   formulario: {
     flexDirection: "row",
